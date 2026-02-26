@@ -15,7 +15,9 @@ export default function PostOpportunityPage({ openPage }) {
     skills: "",
     linkedin: "",
     applyUrl: "",
-    applyMode: "BYAN"
+    applyMode: "BYAN",
+    minCompatibility: 0,
+    maxCompatibility: 100
   });
 
   const handleSubmit = (e) => {
@@ -38,6 +40,8 @@ export default function PostOpportunityPage({ openPage }) {
         linkedin: form.linkedin,
         applyUrl: form.applyUrl,
         applyMode: form.applyMode,
+        minCompatibility: Math.max(0, Math.min(100, Number(form.minCompatibility) || 0)),
+        maxCompatibility: Math.max(0, Math.min(100, Number(form.maxCompatibility) || 100)),
         isLive: true,
         createdAt: now
       };
@@ -194,6 +198,30 @@ export default function PostOpportunityPage({ openPage }) {
                   <option value="EXTERNAL">Recruiter Site</option>
                   <option value="BOTH">Both</option>
                 </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Allowed Compatibility Range (%)</label>
+                <div className="grid grid-cols-2 gap-3">
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white outline-none focus:border-red-500 transition"
+                    placeholder="Min e.g. 50"
+                    value={form.minCompatibility}
+                    onChange={(e) => setForm({ ...form, minCompatibility: e.target.value })}
+                  />
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white outline-none focus:border-red-500 transition"
+                    placeholder="Max e.g. 100"
+                    value={form.maxCompatibility}
+                    onChange={(e) => setForm({ ...form, maxCompatibility: e.target.value })}
+                  />
+                </div>
+                <p className="text-xs text-gray-500">Only students with a resume match within this band can apply.</p>
               </div>
             </div>
 

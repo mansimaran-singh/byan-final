@@ -94,6 +94,9 @@ export default function ResumeBuilderPage() {
       }
 
       setRawText(extractedText);
+      try {
+        localStorage.setItem("byan:resume:text", extractedText);
+      } catch {}
       const partialData = extractResumeData(extractedText);
       const mappedData = mapToResumeFormData(partialData);
       

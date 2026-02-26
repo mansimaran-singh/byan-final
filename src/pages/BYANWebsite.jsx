@@ -18,6 +18,7 @@ import AuthPage from "./auth/AuthPage";
 import RecruiterDashboard from "./dashboard/RecruiterDashboard";
 import PostOpportunityPage from "./opportunities/PostOpportunityPage";
 import BYANAIWidget from "../components/BYANAIWidget";
+import ProfilePage from "./profile/ProfilePage";
 import OpportunityDetailModal from "../components/OpportunityDetailModal";
 import toast from 'react-hot-toast';
 
@@ -61,7 +62,7 @@ export default function BYANWebsite({ initialPage = 'home' }){
     const parsedUser = storedUser ? JSON.parse(storedUser) : null;
     setUser(parsedUser);
 
-    const studentOnlyPages = ['opportunities', 'resume-builder', 'ats', 'dashboard', 'my-opportunities'];
+    const studentOnlyPages = ['opportunities', 'resume-builder', 'ats', 'dashboard', 'my-opportunities', 'profile'];
     
     if (studentOnlyPages.includes(currentPage)) {
       if (!parsedUser) {
@@ -101,6 +102,7 @@ export default function BYANWebsite({ initialPage = 'home' }){
       case 'ats': return <ATSPage />
       case 'dashboard': return <DashboardPage openPage={setCurrentPage} savedJobs={savedJobs} />
       case 'my-opportunities': return <MyOpportunitiesPage openPage={setCurrentPage} savedJobs={savedJobs} onToggleSave={toggleSave} />
+      case 'profile': return <ProfilePage openPage={setCurrentPage} />
       case 'contact': return <ContactPage />
       case 'how-it-works': return <HowItWorksPage />
       case 'about': return <AboutPage />

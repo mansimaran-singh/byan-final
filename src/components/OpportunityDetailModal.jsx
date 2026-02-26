@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, ShieldCheck, ShieldAlert, MapPin, IndianRupee, Briefcase, Clock, CheckCircle2, AlertTriangle, ExternalLink, Building2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useState } from 'react';
+import { analyzeATSLocal } from '../utils/atsEngine';
 
 const OpportunityDetailModal = ({ isOpen, onClose, op, onSave, isSaved }) => {
   if (!op) return null;
@@ -27,7 +28,26 @@ const OpportunityDetailModal = ({ isOpen, onClose, op, onSave, isSaved }) => {
     }
   });
 
+  const resumeText = (() => {
+    try { return localStorage.getItem("byan:resume:text") || "" } catch { return "" }
+  })();
+  const jdText = [op?.title, op?.about, op?.skills].filter(Boolean).join(". ");
+  const ats = resumeText ? analyzeATSLocal(resumeText, jdText) : null;
+  const matchScore = ats ? ats.score : null;
+  const minC = typeof op?.minCompatibility === 'number' ? op.minCompatibility : 0;
+  const maxC = typeof op?.maxCompatibility === 'number' ? op.maxCompatibility : 100;
+  const hasCustomBand = minC !== 0 || maxC !== 100;
+  const ineligible = hasCustomBand && (matchScore == null || matchScore < minC || matchScore > maxC);
+
   const handleApply = () => {
+    if (ineligible) {
+      if (matchScore == null) {
+        toast.error("Upload your resume to check eligibility before applying.");
+      } else {
+        toast.error(`Eligibility requirement not met (${minC}% - ${maxC}% match required).`);
+      }
+      return;
+    }
     if (op.applyMode === "EXTERNAL") {
       const target = op.applyUrl ? (/^https?:\/\//i.test(op.applyUrl) ? op.applyUrl : `https://${op.applyUrl}`) : null;
       if (target) {
@@ -124,6 +144,17 @@ const OpportunityDetailModal = ({ isOpen, onClose, op, onSave, isSaved }) => {
                     {isScam ? <ShieldAlert size={18} /> : <ShieldCheck size={18} />}
                     <span className="font-bold">{op.trust}% Trust Score</span>
                   </div>
+                  {typeof matchScore === 'number' ? (
+                    <div className={`px-3 py-1 rounded-lg text-xs font-bold border ${
+                      matchScore >= 75 ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' :
+                      matchScore >= 50 ? 'bg-amber-500/10 border-amber-500/30 text-amber-400' :
+                      'bg-gray-700/50 border-gray-600 text-gray-300'
+                    }`}>
+                      Your Match: {Math.round(matchScore)}%
+                    </div>
+                  ) : (
+                    hasCustomBand && <div className="px-3 py-1 rounded-lg text-xs font-bold border border-gray-700 text-gray-400">Upload resume to see match</div>
+                  )}
                   <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
                     {isScam ? 'High Risk Detected' : isVerified ? 'Verified Opportunity' : 'Under Review'}
                   </span>
@@ -161,6 +192,11 @@ const OpportunityDetailModal = ({ isOpen, onClose, op, onSave, isSaved }) => {
                 </section>
 
                 <section>
+                  {hasCustomBand && (
+                    <div className="mb-6 p-3 bg-black/30 border border-gray-800 rounded-xl text-sm text-gray-300">
+                      Eligibility: Resume match between <span className="font-bold text-white">{minC}%</span> and <span className="font-bold text-white">{maxC}%</span>. {typeof matchScore === 'number' && (<span>Your match is <span className="font-bold text-white">{Math.round(matchScore)}%</span>.</span>)}
+                    </div>
+                  )}
                   <h3 className="text-lg font-bold text-white mb-3">Trust Analysis</h3>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between p-3 bg-black/20 rounded-xl border border-gray-800">
@@ -235,12 +271,12 @@ const OpportunityDetailModal = ({ isOpen, onClose, op, onSave, isSaved }) => {
             <div className="p-6 bg-gray-800/50 border-t border-gray-800 flex gap-4 shrink-0">
               <button 
                 onClick={handleApply}
-                disabled={isScam}
+                disabled={isScam || ineligible}
                 className={`flex-1 py-4 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 ${
-                  isScam ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-600/20'
+                  (isScam || ineligible) ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-600/20'
                 }`}
               >
-                {op.applyMode === "EXTERNAL" ? "Apply on Recruiter Site" : "Apply on BYAN"} <ExternalLink size={18} />
+                {ineligible ? 'Not Eligible to Apply' : (op.applyMode === "EXTERNAL" ? "Apply on Recruiter Site" : "Apply on BYAN")} <ExternalLink size={18} />
               </button>
               {(op.applyMode === "BOTH" || op.applyMode === "EXTERNAL") && op.applyUrl && (
                 <a

@@ -2,7 +2,7 @@ import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ShieldAlert, ShieldCheck, AlertTriangle, Check, Bookmark } from 'lucide-react'
 
-export default function OpportunityCard({ op, onView=()=>{}, onSave=()=>{}, saved=false, trustScore=92, isMatching=false }){
+export default function OpportunityCard({ op, onView=()=>{}, onSave=()=>{}, saved=false, trustScore=92, isMatching=false, matchScore=null }){
   const isScam = trustScore < 50;
   const isUnverified = trustScore >= 50 && trustScore < 75;
   const isVerified = trustScore >= 75;
@@ -59,6 +59,15 @@ export default function OpportunityCard({ op, onView=()=>{}, onSave=()=>{}, save
             {trustScore}% Trust
           </div>
           <div className="text-xs text-gray-400">{isScam ? 'High Risk' : isUnverified ? 'Unverified' : 'Verified'}</div>
+          {typeof matchScore === 'number' && (
+            <div className={`ml-2 px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+              matchScore >= 75 ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' :
+              matchScore >= 50 ? 'bg-amber-500/10 border-amber-500/30 text-amber-400' :
+              'bg-gray-700/50 border-gray-600 text-gray-300'
+            }`}>
+              {Math.round(matchScore)}% Match
+            </div>
+          )}
         </div>
 
         <div className="text-right">

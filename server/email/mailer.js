@@ -19,6 +19,11 @@ export async function sendEmail({ to, subject, html }) {
     auth: { user, pass }
   });
 
-  const info = await transporter.sendMail({ from, to, subject, html });
-  return { sent: true, info };
+  try {
+    const info = await transporter.sendMail({ from, to, subject, html });
+    return { sent: true, info };
+  } catch (err) {
+    console.error("[MAILER] sendMail error:", err?.message || err);
+    return { sent: false, info: err?.message || "send_failed" };
+  }
 }

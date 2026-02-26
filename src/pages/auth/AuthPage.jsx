@@ -70,8 +70,18 @@ export default function AuthPage({ openPage, initialMode = 'login' }) {
     setLoading(true);
     
     try {
-      if (role === "recruiter") {
+      if (!isLogin) {
         if (!otpVerified) {
+          if (form.email && /^\S+@\S+\.\S+$/.test(form.email)) {
+            try {
+              const res = await requestOtp(form.email);
+              if (res?.ok) {
+                setOtpVerified(false);
+                setOtpExpires(res.expires || (Date.now()+3*60*1000));
+                toast.success(res.sent ? "OTP sent to email" : "OTP sent");
+              }
+            } catch {}
+          }
           toast.error("Please verify email via OTP");
           setLoading(false);
           return;
@@ -264,14 +274,50 @@ export default function AuthPage({ openPage, initialMode = 'login' }) {
                   <div className="grid grid-cols-2 gap-3">
                     <button 
                       type="button"
-                      onClick={() => toast.success("GitHub login coming soon!")}
+                      onClick={() => {
+                        const r = role || 'student';
+                        const w = window.open(`http://localhost:5000/oauth/github/start?role=${encodeURIComponent(r)}`, "oauth", "width=520,height=720");
+                        const handler = (ev) => {
+                          if (ev?.data?.source === "byan-oauth" && ev.data?.provider === "github") {
+                            window.removeEventListener("message", handler);
+                            if (ev.data?.token && ev.data?.user) {
+                              localStorage.setItem("byan:token", ev.data.token);
+                              localStorage.setItem("byan:user", JSON.stringify(ev.data.user));
+                              toast.success(`Welcome, ${ev.data.user.name}!`);
+                              openPage((ev.data.user.role === "recruiter") ? "recruiter-dashboard" : "dashboard");
+                            } else {
+                              toast.error("GitHub login failed");
+                            }
+                            try { w && w.close(); } catch {}
+                          }
+                        };
+                        window.addEventListener("message", handler);
+                      }}
                       className="py-3 bg-gray-800 text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-gray-700 transition"
                     >
                       <Github size={18} /> GitHub
                     </button>
                     <button 
                       type="button"
-                      onClick={() => toast.success("LinkedIn login coming soon!")}
+                      onClick={() => {
+                        const r = role || 'student';
+                        const w = window.open(`http://localhost:5000/oauth/linkedin/start?role=${encodeURIComponent(r)}`, "oauth", "width=520,height=720");
+                        const handler = (ev) => {
+                          if (ev?.data?.source === "byan-oauth" && ev.data?.provider === "linkedin") {
+                            window.removeEventListener("message", handler);
+                            if (ev.data?.token && ev.data?.user) {
+                              localStorage.setItem("byan:token", ev.data.token);
+                              localStorage.setItem("byan:user", JSON.stringify(ev.data.user));
+                              toast.success(`Welcome, ${ev.data.user.name}!`);
+                              openPage((ev.data.user.role === "recruiter") ? "recruiter-dashboard" : "dashboard");
+                            } else {
+                              toast.error("LinkedIn login failed");
+                            }
+                            try { w && w.close(); } catch {}
+                          }
+                        };
+                        window.addEventListener("message", handler);
+                      }}
                       className="py-3 bg-[#0077b5] text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition"
                     >
                       <LinkedInIcon /> LinkedIn
@@ -382,7 +428,7 @@ export default function AuthPage({ openPage, initialMode = 'login' }) {
                   />
                 </div>
 
-                {!isLogin && role === "recruiter" && (
+                {!isLogin && (
                   <motion.div 
                     initial={{ opacity: 0, y: 10 }} 
                     animate={{ opacity: 1, y: 0 }} 

@@ -12,8 +12,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 
 import { AIProviderWrapper } from "./pages/resume/AIProviderContext";
 
-// Real Client ID provided by the user
-const GOOGLE_CLIENT_ID = "178560840780-hsekaesa12roal73kmp6ttssun0g27ri.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "178560840780-hsekaesa12roal73kmp6ttssun0g27ri.apps.googleusercontent.com";
 
 export default function App() {
   return (

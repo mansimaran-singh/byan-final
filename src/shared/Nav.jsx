@@ -7,6 +7,7 @@ import toast from 'react-hot-toast'
 
 export default function Nav({ currentPage, setCurrentPage, setAuthMode, savedCount = 0, onOpenSaved = ()=>{} }){
   const [open, setOpen] = React.useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [user, setUser] = useState(null)
 
   useEffect(() => {
@@ -16,6 +17,7 @@ export default function Nav({ currentPage, setCurrentPage, setAuthMode, savedCou
     } else {
       setUser(null)
     }
+    setUserMenuOpen(false)
   }, [currentPage])
 
   const handleLogout = () => {
@@ -35,7 +37,6 @@ export default function Nav({ currentPage, setCurrentPage, setAuthMode, savedCou
     if (isRecruiter) {
       navItems = [
         ...navItems,
-        { id: 'recruiter-dashboard', label: 'Dashboard' },
         { id: 'post-opportunity', label: 'Post Job' },
       ];
     } else {
@@ -44,7 +45,7 @@ export default function Nav({ currentPage, setCurrentPage, setAuthMode, savedCou
         { id: 'opportunities', label: 'Opportunities' },
         { id: 'resume-builder', label: 'Resume Builder' },
         { id: 'ats', label: 'ATS Check' },
-        { id: 'dashboard', label: 'Dashboard' },
+        // Dashboard moved under user menu; keep top bar clean
       ];
     }
   }
@@ -58,8 +59,13 @@ export default function Nav({ currentPage, setCurrentPage, setAuthMode, savedCou
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
         <div onClick={() => { setCurrentPage('home'); setOpen(false) }} className="flex items-center gap-3 cursor-pointer group">
-          <div className="w-10 h-10 bg-red-600/10 rounded-xl flex items-center justify-center border border-red-500/20 group-hover:bg-red-600/20 transition">
-            <Shield className="text-red-500" size={24} />
+          <div className="w-10 h-10 rounded-xl overflow-hidden border border-red-500/20 bg-black/40">
+            <img 
+              src="/byan-logo.png?v=1" 
+              alt="BYAN" 
+              className="w-full h-full object-cover"
+              onError={(e)=>{ e.currentTarget.onerror=null; e.currentTarget.src='/byan-logo.svg?v=2'; }}
+            />
           </div>
           <div className="font-bold text-xl tracking-tight text-white">BYAN</div>
         </div>
@@ -72,7 +78,7 @@ export default function Nav({ currentPage, setCurrentPage, setAuthMode, savedCou
           ))}
         </div>
 
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-3 relative">
           {/* Only show saved drawer for logged in students */}
           {user && !isRecruiter && (
             <button onClick={onOpenSaved} className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition relative">
@@ -83,10 +89,32 @@ export default function Nav({ currentPage, setCurrentPage, setAuthMode, savedCou
 
           {user ? (
             <div className="flex items-center gap-2 ml-2 pl-4 border-l border-gray-800">
-              <button onClick={() => setCurrentPage(isRecruiter ? 'recruiter-dashboard' : 'dashboard')} className="w-9 h-9 bg-gray-800 rounded-full overflow-hidden flex items-center justify-center text-gray-400 hover:text-white transition">
+              <button 
+                onClick={() => setUserMenuOpen((v)=>!v)} 
+                className="w-9 h-9 bg-gray-800 rounded-full overflow-hidden flex items-center justify-center text-gray-400 hover:text-white transition"
+                title="Account"
+              >
                 <User size={20} />
               </button>
-              <button onClick={handleLogout} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition" title="Logout"><LogOut size={20} /></button>
+              {userMenuOpen && (
+                <div className="absolute right-0 top-12 w-56 bg-black border border-gray-800 rounded-xl shadow-xl overflow-hidden">
+                  <div className="px-4 py-3 border-b border-gray-800">
+                    <div className="text-sm font-bold text-white truncate">{user?.name || 'Account'}</div>
+                    <div className="text-xs text-gray-500 truncate">{user?.email || ''}</div>
+                  </div>
+                  <button onClick={() => { setCurrentPage(isRecruiter ? 'recruiter-dashboard' : 'profile'); setUserMenuOpen(false) }} className="w-full text-left px-4 py-3 text-sm text-gray-200 hover:bg-gray-900">
+                    {isRecruiter ? 'Recruiter Dashboard' : 'Profile'}
+                  </button>
+                  {!isRecruiter && (
+                    <button onClick={() => { setCurrentPage('dashboard'); setUserMenuOpen(false) }} className="w-full text-left px-4 py-3 text-sm text-gray-200 hover:bg-gray-900">
+                      Dashboard
+                    </button>
+                  )}
+                  <button onClick={() => { handleLogout(); setUserMenuOpen(false) }} className="w-full text-left px-4 py-3 text-sm text-red-400 hover:bg-red-500/10 flex items-center gap-2">
+                    <LogOut size={16} /> Logout
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <div className="flex items-center gap-2">

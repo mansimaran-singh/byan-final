@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#0a0000"/>
+      <stop offset="100%" stop-color="#000000"/>
+    </radialGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="6" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <style>
+    .swirl{stroke:#ef4444;stroke-width:3;fill:none;opacity:.6;stroke-dasharray:18 10;animation:dash 6s linear infinite}
+    .swirl.s2{opacity:.4;stroke-width:2;animation-duration:9s}
+    .shield{stroke:#ef4444;stroke-width:20;fill:none;filter:url(#glow)}
+    .spark{fill:#f87171;opacity:.0;animation:spark 3s ease-in-out infinite}
+    @keyframes dash{to{stroke-dashoffset:-560}}
+    @keyframes spark{0%,100%{opacity:0;transform:scale(.6)}50%{opacity:.9;transform:scale(1)}}
+    .pulse{stroke:#ef4444;stroke-width:2;fill:none;opacity:.25;animation:pulse 2.4s ease-in-out infinite}
+    @keyframes pulse{0%{r:148;opacity:.15}50%{r:170;opacity:.35}100%{r:148;opacity:.15}}
+    @media (prefers-reduced-motion: reduce){
+      .swirl,.spark,.pulse{animation:none}
+    }
+  </style>
+  <rect x="32" y="32" width="448" height="448" rx="96" fill="url(#bg)"/>
+  <rect x="32" y="32" width="448" height="448" rx="96" fill="none" stroke="#7f1d1d" stroke-width="3"/>
+  <circle class="pulse" cx="256" cy="256" r="148"/>
+  <g transform="translate(256 256)">
+    <path class="shield" d="M0 -160 C 70 -142, 126 -104, 126 -30 C 126 70, 58 130, 0 160 C -58 130, -126 70, -126 -30 C -126 -104, -70 -142, 0 -160 Z"/>
+    <path class="swirl" d="M-180 -40 C -60 -120, 60 -120, 180 -40 C 110 40, -110 40, -180 -40 Z"/>
+    <path class="swirl s2" d="M-160 20 C -60 -80, 60 -80, 160 20 C 90 100, -90 100, -160 20 Z"/>
+  </g>
+  <g>
+    <circle class="spark" cx="120" cy="180" r="3" style="animation-delay:.1s"/>
+    <circle class="spark" cx="390" cy="210" r="2.5" style="animation-delay:.5s"/>
+    <circle class="spark" cx="280" cy="120" r="2.5" style="animation-delay:1.1s"/>
+    <circle class="spark" cx="180" cy="360" r="2.5" style="animation-delay:1.6s"/>
+    <circle class="spark" cx="350" cy="330" r="2.5" style="animation-delay:2.1s"/>
+    <circle class="spark" cx="90" cy="280" r="2.2" style="animation-delay:2.6s"/>
+  </g>
+</svg>

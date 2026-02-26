@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import authRoutes from "./auth/authRoutes.js";
+import oauthRoutes from "./oauth/oauthRoutes.js";
 import OpenAI from "openai";
 import { analyzeATS } from "./ats/atsEngine.js";
 import { upload } from "./upload/uploadHandler.js";
@@ -25,6 +26,7 @@ app.use(express.json());
 
 // -------------------- ROUTES ------------------------
 app.use("/auth", authRoutes);
+app.use("/oauth", oauthRoutes);
 
 // -------------------- AI ROUTES ---------------------
 
