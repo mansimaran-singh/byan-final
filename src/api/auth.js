@@ -1,4 +1,5 @@
-const API = "http://localhost:5000/auth";
+const API_BASE = (import.meta.env.VITE_API_BASE || "http://localhost:5000").replace(/\/$/, "");
+const API = `${API_BASE}/auth`;
 
 export async function signup(user) {
   const res = await fetch(`${API}/signup`, {

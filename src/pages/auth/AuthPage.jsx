@@ -15,6 +15,7 @@ const LinkedInIcon = () => (
 );
 
 export default function AuthPage({ openPage, initialMode = 'login' }) {
+  const apiBase = (import.meta.env.VITE_API_BASE || "http://localhost:5000").replace(/\/$/, "");
   const [isLogin, setIsLogin] = useState(initialMode === 'login');
   const [role, setRole] = useState(null); // null | 'student' | 'recruiter'
   const [loading, setLoading] = useState(false);
@@ -276,7 +277,7 @@ export default function AuthPage({ openPage, initialMode = 'login' }) {
                       type="button"
                       onClick={() => {
                         const r = role || 'student';
-                        const w = window.open(`http://localhost:5000/oauth/github/start?role=${encodeURIComponent(r)}`, "oauth", "width=520,height=720");
+                        const w = window.open(`${apiBase}/oauth/github/start?role=${encodeURIComponent(r)}`, "oauth", "width=520,height=720");
                         const handler = (ev) => {
                           if (ev?.data?.source === "byan-oauth" && ev.data?.provider === "github") {
                             window.removeEventListener("message", handler);
@@ -301,7 +302,7 @@ export default function AuthPage({ openPage, initialMode = 'login' }) {
                       type="button"
                       onClick={() => {
                         const r = role || 'student';
-                        const w = window.open(`http://localhost:5000/oauth/linkedin/start?role=${encodeURIComponent(r)}`, "oauth", "width=520,height=720");
+                        const w = window.open(`${apiBase}/oauth/linkedin/start?role=${encodeURIComponent(r)}`, "oauth", "width=520,height=720");
                         const handler = (ev) => {
                           if (ev?.data?.source === "byan-oauth" && ev.data?.provider === "linkedin") {
                             window.removeEventListener("message", handler);
